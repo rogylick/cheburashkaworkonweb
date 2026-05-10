@@ -1,3 +1,3 @@
 # cheburashkaworkonweb Cкавронський Борис Русланович КВ-31 ЛАБАРАТОРНА Робота 2 ознайомитись із засобами мови Javascript та навчитись їх застосовувати побудови Web-інтерфейсу користувача.
 Загальне завдання: розробити функціональність для статичних сторінок Web-додатку першої лабораторної роботи із використанням шаблону MVC
-https://docs.google.com/document/d/1HRssWk3tUov4OCeo5XZ-l8vNcQyOq-9sx22gR-o1bbo/edit?tab=t.0
+https://docs.google.com/document/d/1E2OcoEEeFAUMk7NKtbwRj2tCOsTelZveS_2upBbPzXM/edit?tab=t.0
