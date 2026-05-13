@@ -4,16 +4,22 @@ const Controller = {
   init() {
     // 1. Підписуємось на зміни у Store
     AppStore.subscribe((state) => {
-      this.renderUrls(state.urls);
+      // Фільтруємо посилання: показуємо лише ті, що належать поточному користувачу
+      const currentUserEmail = state.currentUser ? state.currentUser.email : null;
+      const userUrls = state.urls.filter(url => url.userEmail === currentUserEmail);
+      
+      this.renderUrls(userUrls);
       this.renderProfile(state.currentUser);
     });
 
-    // 2. Робимо початковий рендер на основі існуючих даних
+    // 2. Робимо початковий рендер
     const initialState = AppStore.getState();
-    this.renderUrls(initialState.urls);
+    const currentUserEmail = initialState.currentUser ? initialState.currentUser.email : null;
+    const userUrls = initialState.urls.filter(url => url.userEmail === currentUserEmail);
+
+    this.renderUrls(userUrls);
     this.renderProfile(initialState.currentUser);
 
-    // 3. Налаштовуємо слухачі подій для форм, де немає inline-обробників
     this.setupEventListeners();
   },
 
@@ -81,27 +87,30 @@ const Controller = {
   },
 
   addUrl() {
-    const originalInput = document.querySelector('input[type="url"]');
-    if (!originalInput || !originalInput.value.trim()) return;
+  const originalInput = document.querySelector('input[type="url"]');
+  if (!originalInput || !originalInput.value.trim()) return;
 
-    const original = originalInput.value.trim();
-    const shortString = Math.random().toString(36).substring(2, 8); // Проста генерація хешу
-    const short = `https://short.ly/${shortString}`;
+  const original = originalInput.value.trim();
+  const shortString = Math.random().toString(36).substring(2, 8);
+  const short = `https://short.ly/${shortString}`;
 
-    const state = AppStore.getState();
-    const newUrl = { id: Date.now(), original, short };
+  const state = AppStore.getState();
+  
+  // Додаємо прив'язку до поточного користувача (або null для гостей)
+  const userEmail = state.currentUser ? state.currentUser.email : null;
+  const newUrl = { id: Date.now(), original, short, userEmail };
 
-    // Зміна стану автоматично викличе renderUrls через метод notify()
-    AppStore.setState({ urls: [...state.urls, newUrl] });
-    
-    // Очищаємо поле
-    originalInput.value = '';
-  },
+  AppStore.setState({ urls: [...state.urls, newUrl] });
+  originalInput.value = '';
+},
 
   // Заглушки для сумісності з вашим HTML, 
   // хоча init() вже все робить автоматично
   loadUrls() {
-    this.renderUrls(AppStore.getState().urls);
+    const state = AppStore.getState();
+    const currentUserEmail = state.currentUser ? state.currentUser.email : null;
+    const userUrls = state.urls.filter(url => url.userEmail === currentUserEmail);
+    this.renderUrls(userUrls);
   },
 
   loadProfile() {
@@ -130,10 +139,13 @@ const Controller = {
 
   renderProfile(user) {
     const nameEl = document.getElementById('p-name');
-    if (!nameEl) return; // Виходимо, якщо не на сторінці профілю
+    if (!nameEl) return; 
 
     if (!user) {
       nameEl.textContent = 'Неавторизований (Гість)';
+      document.getElementById('p-email').textContent = '—';
+      document.getElementById('p-gender').textContent = '—';
+      document.getElementById('p-birth').textContent = '—';
       return;
     }
 
